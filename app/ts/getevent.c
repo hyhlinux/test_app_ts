@@ -16,9 +16,7 @@
 
 static struct pollfd *ufds;
 static char **device_names;
-static int nfds;
-
-enum {
+static int nfds; enum {
 	PRINT_DEVICE_ERRORS = 1U << 0,
 	PRINT_DEVICE = 1U << 1,
 	PRINT_DEVICE_NAME = 1U << 2,
@@ -27,9 +25,7 @@ enum {
 	PRINT_POSSIBLE_EVENTS = 1U << 5,
 	PRINT_INPUT_PROPS = 1U << 6,
 	PRINT_HID_DESCRIPTOR = 1U << 7,
-
 	PRINT_ALL_INFO = (1U << 8) - 1,
-
 	PRINT_LABELS = 1U << 16,
 };
 
@@ -245,6 +241,7 @@ static void print_event(int type, int code, int value, int print_flags)
 			printf("%-12.12s", type_label);
 		else
 			printf("%04x ", type);
+
 		if (code_label)
 			printf(" %-20.20s", code_label);
 		else
@@ -253,8 +250,11 @@ static void print_event(int type, int code, int value, int print_flags)
 			printf(" %-20.20s", value_label);
 		else
 			printf(" %08x ", value);
+
 	} else {
-		printf("%04x %04x %08x", type, code, value);
+		//printf("xxx%04x %04x %08x", type, code, value);
+		//printf("hyh:type %d code %d value %d", type, code, value);
+		printf("hyh:type %d (%s) code %d (%s) value %d\n", type, code, value);
 	}
 }
 
@@ -337,10 +337,12 @@ static int open_device(const char *device, int print_flags)
 		idstr[0] = '\0';
 	}
 
+#if  0
 	if (ioctl(fd, EVIOCSCLOCKID, &clkid) != 0) {
 		fprintf(stderr, "Can't enable monotonic clock reporting: %s\n", strerror(errno));
 		// a non-fatal error
 	}
+#endif
 
 	new_ufds = realloc(ufds, sizeof(ufds[0]) * (nfds + 1));
 	if(new_ufds == NULL) {

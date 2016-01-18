@@ -1,10 +1,10 @@
-#include <stdint.h>
-#include <linux/input.h>
+#include <stdint.h> 
+
+#include <linux/input.h> 
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
-
 
 #ifndef EV_SYN
 #define EV_SYN 0
@@ -198,14 +198,13 @@ char *keys[KEY_MAX + 1] = {
 	[KEY_DEL_LINE] = "Delete line",
 };
 
-char *absval[5] = { "Value", "Min ", "Max ", "Fuzz ", "Flat " };
 
 char *relatives[REL_MAX + 1] = {
 	[0 ... REL_MAX] = NULL,
 	[REL_X] = "X",            [REL_Y] = "Y",
 	[REL_Z] = "Z",            [REL_HWHEEL] = "HWheel",
 	[REL_DIAL] = "Dial",        [REL_WHEEL] = "Wheel",
-	[REL_MISC] = "Misc",    
+	[REL_MISC] = "Misc",
 };
 
 char *absolutes[ABS_MAX + 1] = {
@@ -225,12 +224,14 @@ char *absolutes[ABS_MAX + 1] = {
 	[ABS_VOLUME] = "Volume",    [ABS_MISC] = "Misc",
 };
 
+
 char *misc[MSC_MAX + 1] = {
 	[ 0 ... MSC_MAX] = NULL,
 	[MSC_SERIAL] = "Serial",    [MSC_PULSELED] = "Pulseled",
 	[MSC_GESTURE] = "Gesture",    [MSC_RAW] = "RawData",
 	[MSC_SCAN] = "ScanCode",
 };
+
 
 char *leds[LED_MAX + 1] = {
 	[0 ... LED_MAX] = NULL,
@@ -253,6 +254,7 @@ char *sounds[SND_MAX + 1] = {
 };
 
 char **names[EV_MAX + 1] = {
+
 	[0 ... EV_MAX] = NULL,
 	[EV_SYN] = events,            [EV_KEY] = keys,
 	[EV_REL] = relatives,            [EV_ABS] = absolutes,
@@ -260,15 +262,16 @@ char **names[EV_MAX + 1] = {
 	[EV_SND] = sounds,            [EV_REP] = repeats,
 };
 
+
 #define BITS_PER_LONG (sizeof(long) * 8)
 #define NBITS(x) ((((x)-1)/BITS_PER_LONG)+1)
-#define OFF(x) ((x)%BITS_PER_LONG)
-#define BIT(x) (1UL<<OFF(x))
-#define LONG(x) ((x)/BITS_PER_LONG)
-#define test_bit(bit, array)    ((array[LONG(bit)] >> OFF(bit)) & 1)
+
+
+
 
 int main (int argc, char **argv)
 {
+
 	int fd, rd, i, j, k;
 	struct input_event ev[64];
 	int version;
@@ -276,6 +279,7 @@ int main (int argc, char **argv)
 	unsigned long bit[EV_MAX][NBITS(KEY_MAX)];//1f 2ff*8   //
 	char name[256] = "Unknown";
 	int abs[5];
+
 
 	if (argc < 2) {
 		printf("Usage: evtest /dev/input/eventX\n");
@@ -288,6 +292,7 @@ int main (int argc, char **argv)
 		return 1;
 	}
 
+#if 0
 	if (ioctl(fd, EVIOCGVERSION, &version)) {
 		perror("evtest: can't get version");
 		return 1;
@@ -300,35 +305,11 @@ int main (int argc, char **argv)
 	printf("Input device ID: bus 0x%x vendor 0x%x product 0x%x version 0x%x\n",
 			id[ID_BUS], id[ID_VENDOR], id[ID_PRODUCT], id[ID_VERSION]);
 
+#else
 	ioctl(fd, EVIOCGNAME(sizeof(name)), name);
 	printf("Input device name: \"%s\"\n", name);
 
-	memset(bit, 0, sizeof(bit));
-	ioctl(fd, EVIOCGBIT(0, EV_MAX), bit[0]);
-	printf("Supported events:\n");
-
-	for (i = 0; i < EV_MAX; i++)
-		if (test_bit(i, bit[0])) {
-			printf(" Event type %d (%s)\n", i, events[i] ? events[i] : "?");
-			if (!i) 
-				continue;
-
-			ioctl(fd, EVIOCGBIT(i, KEY_MAX), bit[i]);
-
-			for (j = 0; j < KEY_MAX; j++)
-				if (test_bit(j, bit[i])) {
-					printf(" Event code %d (%s)\n", j, names[i] ? (names[i][j] ? names[i][j] : "?") : "?");
-					if (i == EV_ABS) {
-						ioctl(fd, EVIOCGABS(j), abs);
-						for (k = 0; k < 5; k++)
-							if ((k < 3) || abs[k])
-								printf(" %s %6d\n", absval[k], abs[k]);
-					}
-				}
-		}
-
-
-	printf("Testing ... (interrupt to exit)\n");
+#endif
 
 	while (1) {
 		rd = read(fd, ev, sizeof(struct input_event) * 64);
@@ -343,32 +324,36 @@ int main (int argc, char **argv)
 			if (ev[i].type == EV_SYN) {
 				printf("Event: time %ld.%06ld, -------------- %s ------------\n",
 						ev[i].time.tv_sec, ev[i].time.tv_usec, ev[i].code ? "Config Sync" : "Report Sync" );
-			} else if (ev[i].type == EV_MSC && (ev[i].code == MSC_RAW || ev[i].code == MSC_SCAN)) {
-				//printf("Event: time %ld.%06ld, type %d (%s), code %d (%s), value %02x\n",
-				printf("xxxxxxxxxxxxxxxEvent: time %ld.%06ld, type %d (%s), code %d (%s), value %02x\n",
-						ev[i].time.tv_sec, ev[i].time.tv_usec, ev[i].type,
-						events[ev[i].type] ? events[ev[i].type] : "?",
-						ev[i].code,
-						names[ev[i].type] ? (names[ev[i].type][ev[i].code] ? names[ev[i].type][ev[i].code] : "?") : "?",
-						ev[i].value);
-						//add hyh
-			} else if (ev[i].type == EV_KEY || ev[i].type == EV_ABS) {
-				printf("++++++++++++++++++Event: time %ld.%06ld, type %d (%s), code %d (%s), value %d\n",
-						ev[i].time.tv_sec, ev[i].time.tv_usec, ev[i].type,
-						events[ev[i].type] ? events[ev[i].type] : "?",
-						ev[i].code,
-						names[ev[i].type] ? (names[ev[i].type][ev[i].code] ? names[ev[i].type][ev[i].code] : "?") : "?",
-						ev[i].value);
-			} else {
-				printf("Event: time %ld.%06ld, type %d (%s), code %d (%s), value %d\n",
-						ev[i].time.tv_sec, ev[i].time.tv_usec, ev[i].type,
-						events[ev[i].type] ? events[ev[i].type] : "?",
-						ev[i].code,
-						names[ev[i].type] ? (names[ev[i].type][ev[i].code] ? names[ev[i].type][ev[i].code] : "?") : "?",
-						ev[i].value);
-			}    
+				//} else if (ev[i].type == EV_MSC && (ev[i].code == MSC_RAW || ev[i].code == MSC_SCAN)) {
+	} else if (ev[i].type == EV_MSC && (ev[i].code == MSC_RAW || ev[i].code == MSC_SCAN)) {
+		//printf("Event: time %ld.%06ld, type %d (%s), code %d (%s), value %02x\n",
+		printf("xxxxxxxxxxxxxxxEvent: time %ld.%06ld, type %d (%s), code %d (%s), value %02x\n",
+				ev[i].time.tv_sec, ev[i].time.tv_usec, ev[i].type,
+				events[ev[i].type] ? events[ev[i].type] : "?",
+				ev[i].code,
+				names[ev[i].type] ? (names[ev[i].type][ev[i].code] ? names[ev[i].type][ev[i].code] : "?") : "?",
+				ev[i].value);
+		//add hyh
+	} else if (ev[i].type == EV_KEY || ev[i].type == EV_ABS) {
+		printf("++++++++++++++++++Event: time %ld.%06ld, type %d (%s), code %d (%s), value %d\n",
+				ev[i].time.tv_sec, ev[i].time.tv_usec, ev[i].type,
+				events[ev[i].type] ? events[ev[i].type] : "?",
+				ev[i].code,
+				names[ev[i].type] ? (names[ev[i].type][ev[i].code] ? names[ev[i].type][ev[i].code] : "?") : "?",
+				ev[i].value);
+	} else {
+		printf("Event: time %ld.%06ld, type %d (%s), code %d (%s), value %d\n",
+				ev[i].time.tv_sec, ev[i].time.tv_usec, ev[i].type,
+				events[ev[i].type] ? events[ev[i].type] : "?",
+				ev[i].code,
+				names[ev[i].type] ? (names[ev[i].type][ev[i].code] ? names[ev[i].type][ev[i].code] : "?") : "?",
+				ev[i].value);
+	}    
+
 
 	}
+
+	return 0;
 }
 
 

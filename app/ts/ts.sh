@@ -8,8 +8,7 @@
 #########################
 ts_get_ponit(){
 	while [ 1 ]; do
-		
-		dmesg -c | grep  -E  "hyh|synaptics,s3320|gesture_buffer|s1302|int|button_key"
+		dmesg -c | grep  -E  "Power-Key|ON|on|fb|hyh|synaptics,s3320|gesture_buffer|s1302|int|button_key|fw|report|read"
 		int_change
 	done
 }
@@ -63,8 +62,6 @@ echo 0 > $path_proc_s1302/virtual_key
 echo 0 > $path_proc_s1302/debug 
 }
 
-
-
 #ts_get_ponit&
 #int_change 
 
@@ -105,6 +102,10 @@ info_ts(){
 # $1    on/off  ---log
 # $2    on/off  ---vir_key
 # $3    on/off  ---key_rep
-info_ts 
+#info_ts 
 #ts_get_ponit
+debug_log_on
+ts_get_ponit
+
+
 

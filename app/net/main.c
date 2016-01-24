@@ -1,4 +1,5 @@
-#include <fcntl.h> #include <poll.h>
+#include <fcntl.h> 
+#include <poll.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +37,7 @@ ssize_t uevent_kernel_multicast_uid_recv(int socket, void *buffer, size_t length
 ssize_t uevent_kernel_recv(int socket, void *buffer, size_t length, int require_group, uid_t *uid);
 int uevent_open_socket(int buf_sz, int passcred);
 void handle_device_fd(void);
+static void parse_event(const char *msg, struct uevent *uevent);
 /*********************************************************************/
 
 int main(int argc, char **argv)
@@ -170,6 +172,60 @@ void handle_device_fd(void)
 
 		//handle_device_event(&uevent);
 		//handle_firmware_event(&uevent);
+	}
+}
+static void parse_event(const char *msg, struct uevent *uevent)
+{
+	uevent->action = "";
+	uevent->path = "";
+	uevent->subsystem = "";
+	uevent->firmware = "";
+	uevent->major = -1;
+	uevent->minor = -1;
+	uevent->partition_name = NULL;
+	uevent->partition_num = -1;
+	uevent->device_name = NULL;
+
+	/* currently ignoring SEQNUM */
+	while(*msg) {
+		if(!strncmp(msg, "ACTION=", 7)) {
+			msg += 7;
+			uevent->action = msg;
+		} else if(!strncmp(msg, "DEVPATH=", 8)) {
+			msg += 8;
+			uevent->path = msg;
+		} else if(!strncmp(msg, "SUBSYSTEM=", 10)) {
+			msg += 10;
+			uevent->subsystem = msg;
+		} else if(!strncmp(msg, "FIRMWARE=", 9)) {
+			msg += 9;
+			uevent->firmware = msg;
+		} else if(!strncmp(msg, "MAJOR=", 6)) {
+			msg += 6;
+			uevent->major = atoi(msg);
+		} else if(!strncmp(msg, "MINOR=", 6)) {
+			msg += 6;
+			uevent->minor = atoi(msg);
+		} else if(!strncmp(msg, "PARTN=", 6)) {
+			msg += 6;
+			uevent->partition_num = atoi(msg);
+		} else if(!strncmp(msg, "PARTNAME=", 9)) {
+			msg += 9;
+			uevent->partition_name = msg;
+		} else if(!strncmp(msg, "DEVNAME=", 8)) {
+			msg += 8;
+			uevent->device_name = msg;
+		}
+
+		/* advance to after the next \0 */
+		while(*msg++)
+			;
+	}
+
+	if (1) {
+		printf("event { '%s', '%s', '%s', '%s', %d, %d }\n",
+				uevent->action, uevent->path, uevent->subsystem,
+				uevent->firmware, uevent->major, uevent->minor);
 	}
 }
 

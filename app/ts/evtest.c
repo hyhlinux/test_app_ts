@@ -223,6 +223,21 @@ char *absolutes[ABS_MAX + 1] = {
 	[ABS_DISTANCE] = "Distance",    [ABS_TILT_X] = "XTilt",
 	[ABS_TILT_Y] = "YTilt",        [ABS_TOOL_WIDTH] = "Tool Width",
 	[ABS_VOLUME] = "Volume",    [ABS_MISC] = "Misc",
+
+	//add hyh for touch point
+	[ABS_MT_SLOT]="MT solt"/* MT slot being modified */,
+	[ABS_MT_TOUCH_MAJOR]="Major axis of touching ellipse",
+	[ABS_MT_TOUCH_MINOR]="Minor axis (omit if circular)",
+	[ABS_MT_WIDTH_MAJOR]="Major axis of approaching ellipse" ,
+	[ABS_MT_WIDTH_MINOR]="Minor axis (omit if circular) ",
+	[ABS_MT_ORIENTATION]="Ellipse orientation ",
+	[ABS_MT_POSITION_X] ="Center X touch position" , 
+	[ABS_MT_POSITION_Y] ="Center Y touch position" ,
+	[ABS_MT_TOOL_TYPE]  ="Type of touching device" ,
+	[ABS_MT_BLOB_ID]    ="Group a set of packets as a blob ",
+	[ABS_MT_TRACKING_ID]="Unique ID of initiated contact   ",
+	[ABS_MT_PRESSURE]   ="Pressure on contact area ",
+	[ABS_MT_DISTANCE]   ="Contact hover distance   ",
 };
 
 char *misc[MSC_MAX + 1] = {

@@ -1,4 +1,7 @@
-
+if [ -f a.out ]; then 
+	echo "rm old a.out"
+	rm a.out
+fi
 echo "arm $1"
 src=$1.c
 adb remount

@@ -9,7 +9,10 @@
 ts_get_ponit(){
 	while [ 1 ]; do
 		dmesg -c | grep  -E  "Power-Key|ON|on|fb|hyh|synaptics,s3320|gesture_buffer|s1302|int|button_key|fw|report|read"
+<<<<<<< HEAD
 		#dmesg -c | grep  -E  "finger|fpc|Finger|Fpc|PowerManager|Keyguard|spi|Power-Key|ON|on|fb|hyh|synaptics,s3320|gesture_buffer|s1302|int|button_key|fw|report|read"
+=======
+>>>>>>> 0fe640c30a7ae1290239a450ff4681b62b447662
 		int_change
 	done
 }

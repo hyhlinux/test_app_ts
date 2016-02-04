@@ -1,16 +1,8 @@
 #!/bin/bash  
-
-#########################
-#use: 
-#1.	adb shell
-#2.	sh /.../ts.sh
-#
-#########################
 ts_get_ponit(){
 	while [ 1 ]; do
-		dmesg -c | grep  -E  "Power-Key|ON|on|fb|hyh|synaptics,s3320|gesture_buffer|s1302|int|button_key|fw|report|read"
-		#dmesg -c | grep  -E  "finger|fpc|Finger|Fpc|PowerManager|Keyguard|spi|Power-Key|ON|on|fb|hyh|synaptics,s3320|gesture_buffer|s1302|int|button_key|fw|report|read"
-		int_change
+	dmesg -c
+	int_change
 	done
 }
 
@@ -34,7 +26,7 @@ int_change(){
 		echo $s3320_old 	
 	fi
 
-	if [ "$fpc_new" = "$fpc_new" ];then 
+if [ "$fpc_new" = "$fpc_new" ];then 
 		sleep 0.01
 	else
 		fpc_old=$fpc_new
@@ -42,13 +34,7 @@ int_change(){
 	fi
 }
 
-##########################################
-# open debug log
-# virtual_key
-# key_rep
-##########################################
 path_proc_s1302=/proc/s1302
-
 debug_log_on(){
 echo "open key_rep/virtual_key/debug"
 echo 1 > /sys/bus/i2c/drivers/synaptics,s3320/tp_debug_log
@@ -70,42 +56,6 @@ echo 0 > $path_proc_s1302/debug
 
 
 echo "start....."
-
-info_ts(){
-	echo "******hyh*****"
-	echo $#
-	echo "---------$1" 
-	echo $2 
-	echo $3 
-
-	if [ "$1" = "on" ];then
-		log_flag="on"
-	else 
-		log_flag="off"
-	fi
-
-	if [ "$2" = "on" ];then
-		vk_flag="on"
-	else 
-		vk_flag="off"
-	fi
-
-	if [ "$3" = "on" ];then
-		kr_flag="on"
-	else 
-		kr_flag="off"
-	fi
-	echo "==================="
-	echo $log_flag 
-	echo $vk_flag 
-	echo $kr_flag 
-	echo "==================="
-}
-# sh ./test.sh $1 $2 ...
-# $1    on/off  ---log
-# $2    on/off  ---vir_key
-# $3    on/off  ---key_rep
-#info_ts 
 #ts_get_ponit
 debug_log_on
 ts_get_ponit

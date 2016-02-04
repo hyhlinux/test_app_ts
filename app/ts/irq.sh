@@ -8,18 +8,24 @@
 #########################
 ts_get_ponit(){
 	while [ 1 ]; do
-		dmesg -c | grep  -E  "Power-Key|ON|on|fb|hyh|synaptics,s3320|gesture_buffer|s1302|int|button_key|fw|report|read"
-		#dmesg -c | grep  -E  "finger|fpc|Finger|Fpc|PowerManager|Keyguard|spi|Power-Key|ON|on|fb|hyh|synaptics,s3320|gesture_buffer|s1302|int|button_key|fw|report|read"
+		#dmesg -c | grep  -E  "Power-Key|ON|on|fb|hyh|synaptics,s3320|gesture_buffer|s1302|int|button_key|fw|report|read"
+		dmesg -c | grep  -E  "finger|fpc|Finger|Fpc|PowerManager|Keyguard|spi|Power-Key|ON|on|fb|hyh|synaptics,s3320|gesture_buffer|s1302|int|button_key|fw|report|read"
 		int_change
 	done
 }
 
+
 int_change(){
 	s1302_new=`cat /proc/interrupts | grep -E "synaptics,s1302"`
 	s3320_new=`cat /proc/interrupts | grep -E "synaptics,s3320"`
-	fpc_new=`cat /proc/interrupts | grep -E "spi12.0"`
+	fpc_new=`cat /proc/interrupts   | grep -E "spi12.0"`
+	irq_new=`cat /sys/bus/spi/devices/spi12.0/irq`
+
+	#echo $s1302_new
+	#echo $s3320_new
 #
 	if [ "$s1302_new" = "$s1302_old" ];then 
+	#	usleep 1000000*60
 		sleep 0.01
 	else 
 		s1302_old=$s1302_new
@@ -38,7 +44,14 @@ int_change(){
 		sleep 0.01
 	else
 		fpc_old=$fpc_new
-		echo $fpc_old 	
+		echo "$fpc_old *******************************888"
+	fi
+
+	if [ "$irq_old" = "$irq_new" ];then 
+		sleep 0.01
+	else
+		irq_old=$irq_new
+		echo "*****************************irq:$irq_old 	"
 	fi
 }
 
@@ -52,8 +65,9 @@ path_proc_s1302=/proc/s1302
 debug_log_on(){
 echo "open key_rep/virtual_key/debug"
 echo 1 > /sys/bus/i2c/drivers/synaptics,s3320/tp_debug_log
-#echo 1 > $path_proc_s1302/key_rep
-#echo 1 > $path_proc_s1302/virtual_key
+echo 1 > /sys/bus/i2c/drivers/synaptics,s3320/tp_debug_log
+echo 1 > $path_proc_s1302/key_rep
+echo 1 > $path_proc_s1302/virtual_key
 echo 1 > $path_proc_s1302/debug 
 }
 debug_log_off(){
